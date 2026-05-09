@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/themadorg/relay-ping/compare/v1.0.0...v1.1.0) (2026-05-09)
+
+
+### Features
+
+* Add GitHub Pages support for static site generation and deployment; update README and asset paths in index.html ([de6f320](https://github.com/themadorg/relay-ping/commit/de6f320313be397591b0362d94e77921cac2350a))
+
 # 1.0.0 (2026-05-09)
 
 
