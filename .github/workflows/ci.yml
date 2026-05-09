@@ -42,6 +42,9 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    permissions:
+      contents: write
+      actions: write
     steps:
       - uses: actions/checkout@v6
 
@@ -77,6 +80,46 @@ jobs:
           cp bin/relay-ping.xdc dist/
           cp bin/relay-ping-with-results.xdc dist/
 
+      - name: Publish matrix run release (timestamped assets)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TIMESTAMP=$(date -u +%Y%m%dT%H%M%SZ)
+          TAG="matrix-${TIMESTAMP}-${{ github.run_id }}"
+          cp dist/latency-matrix-run.json.gz "dist/latency-matrix-run_${TIMESTAMP}.json.gz"
+          cp dist/relay-ping-with-results.xdc "dist/relay-ping-with-results_${TIMESTAMP}.xdc"
+          NOTES_FILE=$(mktemp)
+          {
+            echo "Latency matrix run (public relays from [chatmail.at/relays](https://chatmail.at/relays))."
+            echo ""
+            echo "**Completed (UTC):** ${TIMESTAMP}"
+            echo "**Workflow run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "**Commit:** \`${{ github.sha }}\`"
+            echo ""
+            echo "### Result summary"
+            echo ""
+            gzip -dc dist/latency-matrix-run.json.gz | jq -r '
+              if .status then
+                "**Servers:** \(.servers | length)\n\n" +
+                "**Federated pairs:** \(.status.federated)\n**Fed latency (avg ms):** \(.status.fedLatency)\n\n" +
+                "**Buckets** — good: \(.status.good), ok: \(.status.mid), slow: \(.status.slow), bad: \(.status.bad)"
+              elif (.servers | length) > 0 then
+                "**Servers:** \(.servers | length)"
+              else
+                "(export present)"
+              end
+            ' || echo "(could not parse matrix JSON summary)"
+          } > "$NOTES_FILE"
+          gh release create "${TAG}" \
+            --latest=false \
+            --title "Latency matrix ${TIMESTAMP}" \
+            --notes-file "$NOTES_FILE" \
+            "dist/latency-matrix-run_${TIMESTAMP}.json.gz" \
+            "dist/relay-ping.xdc" \
+            "dist/relay-ping-with-results_${TIMESTAMP}.xdc"
+          rm -f "$NOTES_FILE"
+
       - uses: actions/upload-artifact@v7
         with:
           name: latency-matrix-dist
@@ -107,6 +150,16 @@ jobs:
         with:
           name: latency-matrix-dist
           path: dist
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: relay-ping-bin
+          path: bin
+
+      - name: Stage Linux binary for semantic-release assets
+        run: |
+          cp bin/relay-ping dist/relay-ping
+          chmod +x dist/relay-ping
 
       - name: Install npm dependencies
         run: npm ci

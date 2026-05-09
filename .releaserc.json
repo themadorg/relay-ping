@@ -33,6 +33,10 @@
       {
         "assets": [
           {
+            "path": "dist/relay-ping",
+            "label": "relay-ping (Linux amd64)"
+          },
+          {
             "path": "dist/latency-matrix-run.json.gz",
             "label": "Latency matrix export (JSON.gz)"
           },
