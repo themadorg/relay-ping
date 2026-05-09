@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+# Install: cp scripts/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+# (From test/desktop/madmail — paths/adaptations for relay-ping.)
+
+# Forbidden words/IPs
+FORBIDDEN_WORDS=("alireza" "sadraii" "piker" "inja" "onjast.com" "hafezeh.net" "vt2.a16.at" "172.238.97.168" "172.104.241.158" "172.236.203.122")
+
+EXIT_CODE=0
+
+FILES=$(git ls-files --cached --others --exclude-standard)
+
+for FILE in $FILES; do
+    if [[ "$FILE" == .git/* ]]; then
+        continue
+    fi
+
+    # Build artifacts, deps, vendored upstream test trees
+    if [[ "$FILE" == *"node_modules"* ]] \
+        || [[ "$FILE" == "bin/"* ]] \
+        || [[ "$FILE" == "dist/"* ]] \
+        || [[ "$FILE" == "tmp/"* ]] \
+        || [[ "$FILE" == test/* ]]; then
+        continue
+    fi
+
+    GREP_EXCLUDES=(
+        --exclude-dir="node_modules"
+        --exclude-dir="bin"
+        --exclude-dir="dist"
+        --exclude-dir="tmp"
+        --exclude-dir="test"
+        --exclude-dir="__pycache__"
+        --exclude-dir=".venv"
+        --exclude-dir="venv"
+        --exclude-dir=".tox"
+        --exclude-dir=".pytest_cache"
+        --exclude-dir=".mypy_cache"
+        --exclude-dir=".ruff_cache"
+        --exclude-dir="*.egg-info"
+        --exclude="*.pyc"
+        --exclude="*.pyo"
+        --exclude="*.so"
+        --exclude="*.o"
+        --exclude="*.a"
+        --exclude="*.class"
+        --exclude="*.jar"
+        --exclude="*.wasm"
+        --exclude="*.png"
+        --exclude="*.jpg"
+        --exclude="*.jpeg"
+        --exclude="*.gif"
+        --exclude="*.ico"
+        --exclude="*.pdf"
+        --exclude="*.zip"
+        --exclude="*.gz"
+        --exclude="*.tar"
+        --exclude="*.xz"
+        --exclude="*.db"
+        --exclude="*.sqlite"
+        --exclude="*.sqlite3"
+        --binary-files=without-match
+    )
+
+    for WORD in "${FORBIDDEN_WORDS[@]}"; do
+        if [ -d "$FILE" ]; then
+            MATCHING_FILE=$(grep -rlF "${GREP_EXCLUDES[@]}" "$WORD" "$FILE" 2>/dev/null | head -n 1)
+            if [ -n "$MATCHING_FILE" ]; then
+                echo "❌ ERROR: Forbidden word '$WORD' found in directory $FILE (at $MATCHING_FILE)"
+                EXIT_CODE=1
+            fi
+        elif [ -f "$FILE" ]; then
+            if grep -qF --binary-files=without-match "$WORD" "$FILE" 2>/dev/null; then
+                echo "❌ ERROR: Forbidden word '$WORD' found in file: $FILE"
+                EXIT_CODE=1
+            fi
+        fi
+    done
+done
+
+if [ $EXIT_CODE -ne 0 ]; then
+    echo "🛑 Commit rejected due to sensitive information."
+    exit 1
+fi
+
+GITHUB_KEY="B5690EEEBB952194"
+CURRENT_KEY_CONFIG=$(git config user.signingkey)
+
+CURRENT_MAIN_KEY=$(gpg --with-colons --list-keys "$CURRENT_KEY_CONFIG" 2>/dev/null | grep '^pub' | head -n 1 | cut -d: -f5)
+
+if [ -z "$CURRENT_MAIN_KEY" ]; then
+    echo "⚠️ WARNING: Could not find configured GPG key ($CURRENT_KEY_CONFIG) in local keyring."
+fi
+
+LAST_LOCAL_KEY=$(git log -n 50 --format='%GK' | grep -v -e '^$' -e "$GITHUB_KEY" | head -n 1)
+
+if [ -n "$LAST_LOCAL_KEY" ] && [ -n "$CURRENT_MAIN_KEY" ]; then
+    LAST_MAIN_KEY=$(gpg --with-colons --list-keys "$LAST_LOCAL_KEY" 2>/dev/null | grep '^pub' | head -n 1 | cut -d: -f5)
+
+    if [ -n "$LAST_MAIN_KEY" ] && [ "$CURRENT_MAIN_KEY" != "$LAST_MAIN_KEY" ]; then
+        echo "❌ ERROR: Configured GPG Key ($CURRENT_MAIN_KEY) is different from your last used key ($LAST_MAIN_KEY)!"
+        echo "If this is intentional, update your git config or the pre-commit hook."
+        exit 1
+    fi
+fi
+
+echo "✅ GPG Key ID check passed ($CURRENT_MAIN_KEY)."
+exit 0

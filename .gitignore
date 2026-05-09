@@ -1,0 +1,10 @@
+node_modules/
+bin/
+dist/
+tmp/
+relay-ping.log
+*.xdc
+test/
+node_modules/
+results/
+servers.txt

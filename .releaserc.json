@@ -1,0 +1,51 @@
+{
+  "branches": ["main"],
+  "tagFormat": "v${version}",
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md"
+      }
+    ],
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "echo ${nextRelease.version} > .version && npm version ${nextRelease.version} --allow-same-version --no-git-tag-version"
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": [
+          "package.json",
+          "package-lock.json",
+          "CHANGELOG.md",
+          ".version"
+        ],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          {
+            "path": "dist/latency-matrix-run.json.gz",
+            "label": "Latency matrix export (JSON.gz)"
+          },
+          {
+            "path": "dist/relay-ping.xdc",
+            "label": "WebXDC (app only)"
+          },
+          {
+            "path": "dist/relay-ping-with-results.xdc",
+            "label": "WebXDC with bundled matrix run"
+          }
+        ]
+      }
+    ]
+  ]
+}

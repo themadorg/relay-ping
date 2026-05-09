@@ -1,0 +1,426 @@
+:root {
+  --bg:#0b1020;
+  --fg:#e6edf3;
+  --grid:#2a3353;
+  --head:#151d36;
+  --side:#121a31;
+  --scroll-track:#111a33;
+  --scroll-thumb:#2f4f91;
+  --scroll-thumb-hover:#4f79d3;
+}
+html, body { height:100%; }
+body {
+  font-family: ui-sans-serif, system-ui;
+  margin: 0;
+  padding: 8px;
+  background:var(--bg);
+  color:var(--fg);
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1.2;
+}
+h1 { margin: 0 0 4px; font-size: 14px; }
+.meta { opacity:.9; margin-bottom:6px; font-size:11px; }
+.badge { display:inline-block; padding:1px 6px; border-radius:999px; font-size:10px; margin-right:4px; }
+.ok { background:#11331c; color:#7CFF9F; }
+.warn { background:#3a2f09; color:#ffd166; }
+.bad { background:#3b1111; color:#ff7b7b; }
+.app {
+  height: calc(100vh - 16px);
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 4px;
+}
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #111a36;
+  border: 1px solid var(--grid);
+  padding: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  box-shadow: 0 2px 0 #000;
+}
+.topbar-main { min-width: 0; }
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+.btn {
+  background:#1a2850;
+  color:#dbe8ff;
+  border:1px solid #33508f;
+  border-radius:6px;
+  padding:4px 8px;
+  font-size:11px;
+  cursor:pointer;
+  white-space: nowrap;
+}
+.btn:disabled {
+  cursor:not-allowed;
+  opacity:.5;
+}
+.btn:not(:disabled):hover { background:#243b74; }
+.file-loader {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  padding: 6px;
+  border: 1px solid var(--grid);
+  background: #0d152b;
+}
+.file-loader .drop-zone {
+  flex: 1;
+}
+.drop-zone {
+  flex: 1;
+  border: 2px dashed #33508f;
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.drop-zone:hover, .drop-zone.dragover {
+  border-color: #4f79d3;
+}
+.drop-zone-content p {
+  margin: 0;
+  font-size: 12px;
+  color: #dbe8ff;
+}
+.score-title { margin:0 0 6px; font-size:12px; }
+.score-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+/* Scores modal: separate borders — sticky thead is unreliable with border-collapse:collapse */
+.modal--scores .score-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.modal--scores .score-table tbody tr:first-child td {
+  border-top: none;
+}
+.score-table th,
+.score-table td {
+  border: 1px solid var(--grid);
+  padding: 4px 6px;
+  font-size: 11px;
+  position: static;
+  left: auto;
+  z-index: auto;
+}
+.score-table th {
+  background: #172243;
+  text-align: left;
+}
+.modal--scores .score-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #172243;
+  color: var(--fg);
+  box-shadow: 0 1px 0 var(--grid);
+}
+.modal--scores .score-modal-body {
+  color: var(--fg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.modal--scores #scorePanel,
+.modal--scores #statsBreakdownPanel {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+.modal--scores .score-table-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+  scrollbar-width: thin;
+}
+.modal--scores .score-title {
+  color: var(--fg);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.modal--scores .score-table tbody td {
+  color: var(--fg);
+}
+/* Server column links: pill style + !important so UA / WebView link colors never wash out */
+#scoreModalBackdrop.modal-backdrop {
+  color-scheme: dark;
+}
+#scoreModalBackdrop .score-table tbody td a.score-server-link:any-link,
+#scoreModalBackdrop .score-table tbody td a.score-server-link:link,
+#scoreModalBackdrop .score-table tbody td a.score-server-link:visited {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background: rgba(38, 62, 118, 0.85);
+  padding: 0 10px;
+  border-radius: 5px;
+  border: 1px solid rgba(140, 175, 245, 0.65);
+  text-decoration: none !important;
+  font-weight: 500;
+  forced-color-adjust: none;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 13px;
+  padding-top: 2px;
+}
+#scoreModalBackdrop .score-table tbody td a.score-server-link:hover {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background: rgba(58, 88, 158, 0.95);
+  border-color: rgba(190, 215, 255, 0.9);
+}
+#scoreModalBackdrop .score-table tbody td a.score-server-link:focus-visible {
+  outline: 2px solid #6eb3ff;
+  outline-offset: 2px;
+}
+.clickable-cell { cursor:pointer; text-decoration: underline dotted; text-underline-offset: 2px; }
+.stats-bucket {
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+.stats-bucket:hover {
+  filter: brightness(1.08);
+}
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  padding: 16px;
+}
+.modal-backdrop.show { display:flex; }
+.modal--scores {
+  width: min(920px, 96vw);
+}
+/* Scores popup: header stays fixed; only the body scrolls (avoids thead vs title bar z-index fights). */
+.modal.modal--scores {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 82vh;
+}
+.modal {
+  width: min(900px, 96vw);
+  max-height: 82vh;
+  overflow: auto;
+  border: 1px solid var(--grid);
+  background: #0f1730;
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.5);
+}
+.modal-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #162247;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--grid);
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+}
+.modal--scores .modal-head {
+  position: relative;
+  flex-shrink: 0;
+  z-index: 3;
+}
+.modal-actions { display:flex; gap:6px; align-items:center; }
+.modal-head--log .error-modal-title {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.modal-head-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.error-modal-badge {
+  font-size: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: black;
+  padding: 5px;
+  border-radius: 4px;
+  padding-top: 6px;
+  padding-bottom: 4px;
+}
+.modal-body { padding: 10px 10px 10px 20px; }
+.score-modal-body { padding: 10px 12px 14px; }
+.modal-pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  margin: 0;
+  tab-size: 4;
+}
+.modal-body--log {
+  background: #0a0f1e;
+}
+/* Log modal base text (unstyled segments); tokens below override with !important */
+#errorModalBody.log-modal-pre,
+#errorModalBody.modal-pre {
+  color: #c8d0dc;
+}
+/*
+ * Log syntax colors — must beat body/pre inheritance and forced-colors / WebKit fill.
+ * Scoped to #errorModalBody so nothing else wins by accident.
+ */
+#errorModalBody span[class^="log-"] {
+  forced-color-adjust: none;
+}
+#errorModalBody .log-ts-bracket {
+  color: #6a7a99 !important;
+  -webkit-text-fill-color: #6a7a99 !important;
+}
+#errorModalBody .log-ts {
+  color: #62e8ff !important;
+  -webkit-text-fill-color: #62e8ff !important;
+  font-weight: 500;
+}
+#errorModalBody .log-stream-tag {
+  color: #5eead4 !important;
+  -webkit-text-fill-color: #5eead4 !important;
+}
+#errorModalBody .log-key {
+  color: #ffd166 !important;
+  -webkit-text-fill-color: #ffd166 !important;
+  font-weight: 600;
+}
+#errorModalBody .log-eq {
+  color: #8ec5ff !important;
+  -webkit-text-fill-color: #8ec5ff !important;
+  opacity: 0.95;
+}
+#errorModalBody .log-val {
+  color: #c3f090 !important;
+  -webkit-text-fill-color: #c3f090 !important;
+}
+#errorModalBody .log-from {
+  color: #ffa07a !important;
+  -webkit-text-fill-color: #ffa07a !important;
+}
+#errorModalBody .log-to {
+  color: #9ebdff !important;
+  -webkit-text-fill-color: #9ebdff !important;
+}
+#errorModalBody .log-arrow {
+  color: #ffd166 !important;
+  -webkit-text-fill-color: #ffd166 !important;
+  padding: 0 2px;
+}
+#errorModalBody .log-smtp-code {
+  color: #e0b8ff !important;
+  -webkit-text-fill-color: #e0b8ff !important;
+  font-weight: 700;
+}
+#errorModalBody .log-imap-tag {
+  color: #82aaff !important;
+  -webkit-text-fill-color: #82aaff !important;
+  font-weight: 600;
+}
+#errorModalBody .log-imap-star {
+  color: #89ddff !important;
+  -webkit-text-fill-color: #89ddff !important;
+  font-weight: 700;
+}
+#errorModalBody .log-cmd-word {
+  color: #ff9cac !important;
+  -webkit-text-fill-color: #ff9cac !important;
+  font-weight: 600;
+}
+.table-wrap {
+  overflow: auto;
+  height: 100%;
+  border:1px solid var(--grid);
+  background:#0a1124;
+  scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+  scrollbar-width: thin;
+}
+/* Latency matrix only — sticky headers/first column must not apply to .score-table (modal scroll glitch). */
+#tbl {
+  border-collapse: collapse;
+  width: max-content;
+  min-width: 100%;
+}
+#tbl th,
+#tbl td {
+  border: 1px solid var(--grid);
+  padding: 3px 5px;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 11px;
+}
+#tbl th {
+  background: var(--head);
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+#tbl td:first-child,
+#tbl th:first-child {
+  text-align: left;
+  background: var(--side);
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  white-space: nowrap;
+}
+#tbl th:first-child {
+  z-index: 4;
+}
+.pending { color:#8b949e; }
+.testing { color:#4cc9f0; font-weight:600; }
+.timeout,.err { color:#ff7b7b; font-weight:600; }
+.fail-cell {
+  background:#7f1111 !important;
+  color:#fff !important;
+  font-weight:700;
+}
+.selected-cell {
+  outline: 1px solid #00e5ff;
+  outline-offset: -1px;
+  margin: -1px;
+  position: relative;
+  z-index: 1;
+}
+.good { color:#7CFF9F; font-weight:600; }
+.mid { color:#ffd166; font-weight:600; }
+.slow { color:#ff7b7b; font-weight:600; }
+/* Intra-server (diagonal) cells — inset ring so sticky column bg is unchanged */
+#tbl td.diag-cell {
+  box-shadow: inset 0 0 0 1px rgba(120, 170, 255, 0.35);
+}
+code { color:#9ecbff; }
+* { scrollbar-color: var(--scroll-thumb) var(--scroll-track); scrollbar-width: thin; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: var(--scroll-track); }
+*::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 10px; border: 2px solid var(--scroll-track); }
+*::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); }

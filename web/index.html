@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>Relay Ping Latency Matrix</title>
+  <link rel="stylesheet" href="/static/styles.css?v=stats-breakdown">
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="topbar-main">
+        <h1>Latency Matrix</h1>
+        <div class="meta" id="meta">Waiting for data...</div>
+        <div id="stats" class="meta"></div>
+        <div id="logs" class="meta"></div>
+      </div>
+      <div class="topbar-actions">
+        <button type="button" id="loadBtn" class="btn">Load Data</button>
+        <button type="button" id="scoreBtn" class="btn" disabled>Show Scores</button>
+      </div>
+    </div>
+    <div id="fileLoader" class="file-loader">
+      <div id="dropZone" class="drop-zone">
+        <div class="drop-zone-content">
+          <p>Drop result.json or result.json.gz here or click to select</p>
+          <input type="file" id="fileInput" accept=".json,.json.gz,application/gzip,application/x-gzip" style="display:none;">
+        </div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table id="tbl"></table>
+    </div>
+  </div>
+  <div id="scoreModalBackdrop" class="modal-backdrop">
+    <div class="modal modal--scores">
+      <div class="modal-head">
+        <strong>Server scores</strong>
+        <div class="modal-actions">
+          <button type="button" id="closeScoreModalBtn" class="btn">Close</button>
+        </div>
+      </div>
+      <div class="modal-body score-modal-body">
+        <div id="scorePanel"></div>
+      </div>
+    </div>
+  </div>
+  <div id="statsBreakdownBackdrop" class="modal-backdrop">
+    <div class="modal modal--scores">
+      <div class="modal-head">
+        <strong id="statsBreakdownTitle">Pairs</strong>
+        <div class="modal-actions">
+          <button type="button" id="closeStatsBreakdownBtn" class="btn">Close</button>
+        </div>
+      </div>
+      <div class="modal-body score-modal-body">
+        <div id="statsBreakdownPanel"></div>
+      </div>
+    </div>
+  </div>
+  <div id="errorModalBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-head modal-head--log">
+        <strong id="errorModalTitle" class="error-modal-title">Cell Error</strong>
+        <div class="modal-head-right">
+          <span id="errorModalBadge" class="error-modal-badge" hidden title=""></span>
+          <div class="modal-actions">
+            <button type="button" id="copyErrorModalBtn" class="btn">Copy</button>
+            <button type="button" id="closeErrorModalBtn" class="btn">Close</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body modal-body--log">
+        <pre id="errorModalBody" class="modal-pre log-modal-pre"></pre>
+      </div>
+    </div>
+  </div>
+  <script defer src="/static/app.js"></script>
+</body>
+</html>
