@@ -17,6 +17,16 @@ Requires **Go 1.26+** (see `go.mod`).
 
 ---
 
+## GitHub Pages
+
+On **`main`** (and on **workflow_dispatch**), after the **latency matrix** job finishes, CI builds a static site that mirrors the WebXDC bundle: copy `web/`, embed **`dist/latency-matrix-run.json.gz`** as **`static/bundled-run.json.gz`**, and flip **`WEBXDC_BUILD_MODE`** in the deployed `app.js` so the UI loads the bundled matrix without WebSockets.
+
+**One-time repo setup:** **Settings → Pages → Build and deployment → Source:** choose **GitHub Actions** (not “Deploy from a branch”).
+
+The site is published at **`https://<owner>.github.io/<repo>/`** (project Pages), for example `https://themadorg.github.io/relay-ping/`. Asset URLs in `web/index.html` are **relative** (`static/…`) so they resolve correctly under the `/repo/` base path.
+
+---
+
 ## CLI overview
 
 Run `./bin/relay-ping -help` for flag text from `cmd/relay-ping/main.go`.

@@ -126,6 +126,57 @@ jobs:
           path: dist
           if-no-files-found: error
 
+  pages-build:
+    name: GitHub Pages (bundled matrix site)
+    needs: latency-matrix
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: github-pages-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: latency-matrix-dist
+          path: dist
+
+      - name: Assemble static site (WebXDC-style bundle + latest matrix JSON)
+        run: |
+          set -euo pipefail
+          mkdir -p site/static
+          cp web/index.html site/
+          cp -r web/static/. site/static/
+          cp dist/latency-matrix-run.json.gz site/static/bundled-run.json.gz
+          sed -i 's/WEBXDC_BUILD_MODE = false/WEBXDC_BUILD_MODE = true/' site/static/app.js
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+  pages-deploy:
+    name: Deploy GitHub Pages
+    needs: pages-build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: github-pages-${{ github.ref }}
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
+
   semantic-release:
     name: Semantic release
     runs-on: ubuntu-latest
