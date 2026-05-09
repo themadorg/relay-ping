@@ -24,7 +24,7 @@ func main() {
 	var (
 		domain   = flag.String("domain", "https://nine.testrun.org/", "chatmail provider domain")
 		endpoint = flag.String("endpoint", "", "chatmail account endpoint (optional override)")
-		testName = flag.String("test", "connectivity", "test to run: connectivity, securejoin-init")
+		testName = flag.String("test", "connectivity", "test to run: connectivity, securejoin-init, throughput, latency_matrix, test-webserver")
 		servers  = flag.String("servers", "", "comma-separated servers for latency_matrix test")
 		serversFile = flag.String("servers-file", "", "path to servers file for latency_matrix test (one host per line, '#' comments supported)")
 		worker     = flag.Int("worker", 4, "concurrent pair workers for latency_matrix (each opens SMTP+IMAP; lower if you see no route / timeouts; capped at 16 inside the tool)")

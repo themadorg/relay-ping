@@ -1,3 +1,4 @@
+# Targets documented in README.md (build, WebXDC bundles, clean).
 APP_NAME := relay-ping
 BIN_DIR := bin
 CMD_DIR := ./cmd/relay-ping
